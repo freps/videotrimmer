@@ -1,8 +1,8 @@
 # Video Trimmer — Electron + Vue.js
 
-Desktop-App zum Trimmen von Videos.
+Desktop app for trimming videos.
 
-## Voraussetzungen
+## Prerequisites
 
 - [Node.js](https://nodejs.org) (v20+)
 - npm
@@ -10,26 +10,35 @@ Desktop-App zum Trimmen von Videos.
 ## Setup
 
 ```bash
-cd video
 npm install
 ```
 
-## Entwicklung
+## Development
 
 ```bash
 npm run dev
 ```
 
-## Produktion
+## Production
 
 ```bash
 npm run build
 ```
 
+### Windows Build
+
+For the Windows build (`electron-builder --win`), the `ffmpeg.exe` must be placed manually into the `build/` folder, as it is not included in the repository:
+
+1. Download the Windows binary from [ffmpeg.org](https://ffmpeg.org/download.html) (essentials build is sufficient)
+2. Copy `ffmpeg.exe` to `build/ffmpeg.exe`
+3. Run the build: `npm run build:win`
+
+> `build/ffmpeg.exe` is excluded via `.gitignore` and must be provided again after every fresh checkout.
+
 ## Features
 
-- Video öffnen (MP4, MOV, AVI, MKV, WebM)
-- Timeline mit Trim-Start/Ende-Reglern
-- Positions-Regler + Abspielen
-- Codec-Auswahl: Original (Copy), H.264, H.265
+- Open videos (MP4, MOV, AVI, MKV, WebM)
+- Timeline with trim start/end sliders
+- Position slider + playback
+- Codec selection: Original (Copy), H.264, H.265
 - FFmpeg embedded via `ffmpeg-static`

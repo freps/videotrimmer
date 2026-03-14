@@ -13,6 +13,7 @@ const muted = ref(false);
 const isSaving = ref(false);
 const saveProgress = ref(0);
 const saveSpeed = ref("");
+const isHardwareEncoding = ref(false);
 const videoEl = ref<HTMLVideoElement | null>(null);
 function onKeydown(e: KeyboardEvent) {
   if (!videoEl.value || !videoSrc.value) return;
@@ -47,6 +48,7 @@ onMounted(() => {
   window.electronAPI?.onTrimProgress((data) => {
     saveProgress.value = data.percent;
     saveSpeed.value = data.speed || "";
+    if (data.isHardware !== undefined) isHardwareEncoding.value = data.isHardware;
   });
   window.electronAPI?.onOpenFile((data) => {
     videoPath.value = data.filePath;
@@ -199,7 +201,7 @@ async function saveVideo() {
       </div>
       <!-- Progress bar during save -->
       <div v-if="isSaving" class="progress-bar">
-        <div class="progress-fill" :style="{ width: saveProgress + '%' }" />
+        <div class="progress-fill" :class="isHardwareEncoding ? 'progress-fill--hw' : 'progress-fill--sw'" :style="{ width: saveProgress + '%' }" />
         <span class="progress-text">{{ saveProgress }}% {{ saveSpeed }}</span>
       </div>
       <div class="controls">
@@ -438,8 +440,15 @@ body {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4a8db7, #5a9ec7);
   transition: width 0.3s;
+}
+
+.progress-fill--hw {
+  background: linear-gradient(90deg, #4a8db7, #5a9ec7);
+}
+
+.progress-fill--sw {
+  background: linear-gradient(90deg, #b74a4a, #c75a5a);
 }
 
 .progress-text {

@@ -53,8 +53,8 @@ function getAvailableEncoders(ffmpeg: string): Set<string> {
 }
 
 /** Build FFmpeg codec args for the given codec choice */
-export async function getCodecArgs(codec: "original" | "h264" | "h265"): Promise<string[]> {
-  if (codec === "original") return ["-c", "copy"];
+export async function getCodecArgs(codec: "original" | "h264" | "h265"): Promise<{ args: string[]; isHardware: boolean }> {
+  if (codec === "original") return { args: ["-c", "copy"], isHardware: false };
 
   const encoders = detectEncoders();
   const encoder = codec === "h264" ? encoders.h264 : encoders.h265;
@@ -65,20 +65,23 @@ export async function getCodecArgs(codec: "original" | "h264" | "h265"): Promise
   if (isHardware) {
     args.push("-c:v", encoder, "-q:v", "65", "-c:a", "aac");
   } else {
-    args.push("-c:v", encoder, "-preset", "fast", "-c:a", "aac");
+    args.push("-c:v", encoder, "-preset", "ultrafast", "-c:a", "aac");
   }
 
   if (codec === "h265") {
     args.push("-tag:v", "hvc1");
   }
 
-  return args;
+  return { args, isHardware };
 }
 
 export function getFfmpegPath(): string {
+  const isWin = process.platform === "win32";
+  const binaryName = isWin ? "ffmpeg.exe" : "ffmpeg";
+
   // In packaged app, check extraResources
   if (process.resourcesPath) {
-    const resourcePath = path.join(process.resourcesPath, "ffmpeg");
+    const resourcePath = path.join(process.resourcesPath, binaryName);
     try {
       require("fs").accessSync(resourcePath);
       return resourcePath;
@@ -89,7 +92,7 @@ export function getFfmpegPath(): string {
     const ffmpegStatic = require("ffmpeg-static");
     return typeof ffmpegStatic === "string" ? ffmpegStatic : ffmpegStatic.default;
   } catch {
-    return "ffmpeg";
+    return binaryName;
   }
 }
 

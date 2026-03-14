@@ -8,7 +8,8 @@
     "build:main": "tsc -p tsconfig.main.json",
     "build:renderer": "vite build",
     "build": "npm run build:main && npm run build:renderer && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
-    "pack": "npm run build:main && npm run build:renderer && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir"
+    "pack": "npm run build:main && npm run build:renderer && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir",
+    "build:win": "npm run build:main && npm run build:renderer && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win --x64"
   },
   "dependencies": {
     "ffmpeg-static": "^5.2.0"
@@ -48,7 +49,17 @@
       ]
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "extraResources": [
+        {
+          "from": "build/ffmpeg.exe",
+          "to": "ffmpeg.exe"
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true
     },
     "linux": {
       "target": "AppImage"

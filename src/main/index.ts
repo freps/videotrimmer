@@ -129,7 +129,7 @@ function setupIPC() {
     const { spawn } = require("child_process");
     const ffmpegPath = getFfmpegPath();
     const totalDuration = opts.endTime - opts.startTime;
-    const codecArgs = await getCodecArgs(opts.codec);
+    const codecResult = await getCodecArgs(opts.codec);
     const audioArgs = opts.noAudio && opts.codec !== "original" ? ["-an"] : [];
     const args = [
       "-y",
@@ -137,7 +137,7 @@ function setupIPC() {
       "-i", opts.inputPath,
       "-t", String(totalDuration),
       "-progress", "pipe:1",
-      ...codecArgs,
+      ...codecResult.args,
       ...audioArgs,
       opts.outputPath,
     ];
@@ -174,7 +174,7 @@ function setupIPC() {
           const percent = Math.min(99, Math.round((currentSec / totalDuration) * 100));
           if (percent !== lastPercent) {
             lastPercent = percent;
-            mainWindow?.webContents.send("trim-progress", { percent, fps, speed });
+            mainWindow?.webContents.send("trim-progress", { percent, fps, speed, isHardware: codecResult.isHardware });
           }
         }
       });
@@ -188,7 +188,7 @@ function setupIPC() {
           console.error("[MAIN] ffmpeg error:", stderrData.slice(-300));
           reject(new Error(`FFmpeg fehlgeschlagen: ${stderrData.slice(-200)}`));
         } else {
-          mainWindow?.webContents.send("trim-progress", { percent: 100, fps: 0, speed: "done" });
+          mainWindow?.webContents.send("trim-progress", { percent: 100, fps: 0, speed: "done", isHardware: codecResult.isHardware });
           resolve({ success: true });
         }
       });
